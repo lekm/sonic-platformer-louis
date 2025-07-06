@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic Platformer - For Louis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-layout">
+        <div class="controls-panel">
+            <h3>🎮 Game Controls</h3>
+            <div class="control-group">
+                <div class="control-item">
+                    <span class="key">←→</span>
+                    <span class="action">Move Left/Right</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">A D</span>
+                    <span class="action">Move Left/Right</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">↑</span>
+                    <span class="action">Jump</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">W</span>
+                    <span class="action">Jump</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">SPACE</span>
+                    <span class="action">Jump</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">↓</span>
+                    <span class="action">Spin Dash</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">S</span>
+                    <span class="action">Spin Dash</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">X</span>
+                    <span class="action">Shadow Teleport</span>
+                </div>
+            </div>
+            <div class="tips">
+                <h4>💡 Character Abilities:</h4>
+                <ul>
+                    <li>🔵 Sonic: Classic balanced gameplay</li>
+                    <li>⚫ Shadow: Press X to teleport forward</li>
+                    <li>🟠 Tails: Hold jump to fly (limited time)</li>
+                    <li>🔴 Knuckles: Hold jump to glide down</li>
+                    <li>🩷 Amy: Press jump twice for double jump</li>
+                    <li>⚫ Dark Sonic: Super charged spin dash</li>
+                    <li>⭐ Collect stars for SuperSonic power!</li>
+                    <li>SuperSonic makes you invulnerable!</li>
+                </ul>
+            </div>
+        </div>
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div class="game-ui">
+                <div class="level">Level: <span id="level">1</span></div>
+                <div class="score">Score: <span id="score">0</span></div>
+                <div class="rings">Rings: <span id="rings">0</span></div>
+                <div class="lives">Lives: <span id="lives">3</span></div>
+                <div class="supersonic" id="supersonic" style="display: none;">⚡ SUPER SONIC! ⚡</div>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
