@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sonic Platformer - For Louis</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
     <div class="game-layout">
@@ -67,8 +68,75 @@
                 <div class="lives">Lives: <span id="lives">3</span></div>
                 <div class="supersonic" id="supersonic" style="display: none;">⚡ SUPER SONIC! ⚡</div>
             </div>
+            <button id="feedbackBtn" class="feedback-btn">🐛 Report Bug / Suggest Feature</button>
         </div>
     </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🐛 Bug Report & Feedback</h2>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="feedbackType">Type of Feedback:</label>
+                    <select id="feedbackType" name="feedbackType" required>
+                        <option value="">Select type...</option>
+                        <option value="bug">🐛 Bug Report</option>
+                        <option value="feature">💡 Feature Request</option>
+                        <option value="improvement">⚡ Game Improvement</option>
+                        <option value="other">💬 Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentCharacter">Which character were you playing?</label>
+                    <select id="currentCharacter" name="currentCharacter">
+                        <option value="">Select character...</option>
+                        <option value="sonic">🔵 Sonic</option>
+                        <option value="shadow">⚫ Shadow</option>
+                        <option value="tails">🟠 Tails</option>
+                        <option value="knuckles">🔴 Knuckles</option>
+                        <option value="amy">🩷 Amy</option>
+                        <option value="dark-sonic">⚫ Dark Sonic</option>
+                        <option value="not-applicable">N/A</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentLevel">Which level?</label>
+                    <select id="currentLevel" name="currentLevel">
+                        <option value="">Select level...</option>
+                        <option value="1">Level 1 - Green Hill</option>
+                        <option value="2">Level 2 - Chemical Plant</option>
+                        <option value="3">Level 3 - Sky Sanctuary</option>
+                        <option value="menu">Character Select / Menu</option>
+                        <option value="not-applicable">N/A</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Please describe the bug or your suggestion:</label>
+                    <textarea id="description" name="description" required 
+                              placeholder="Tell us what happened, what you expected, or what you'd like to see improved..."
+                              rows="4"></textarea>
+                </div>
+                
+                <div class="form-group security-question">
+                    <label for="securityAnswer">Security Question: What's your favorite Sonic character?</label>
+                    <input type="text" id="securityAnswer" name="securityAnswer" required 
+                           placeholder="Enter any Sonic character name...">
+                    <small>This helps prevent spam. Any Sonic character is correct!</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="cancel-btn">Cancel</button>
+                    <button type="submit" id="submitBtn" class="submit-btn">Send Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="game.js"></script>
 </body>
 </html>

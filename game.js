@@ -1601,4 +1601,128 @@ class SonicGame {
     }
 }
 
+// Initialize EmailJS
+emailjs.init("Yb9XsQ_h3DSDJ_bIA"); // Replace with your EmailJS public key
+
+// Feedback Form Functionality
+class FeedbackManager {
+    constructor() {
+        this.modal = document.getElementById('feedbackModal');
+        this.feedbackBtn = document.getElementById('feedbackBtn');
+        this.closeBtn = document.querySelector('.close');
+        this.cancelBtn = document.getElementById('cancelBtn');
+        this.form = document.getElementById('feedbackForm');
+        this.submitBtn = document.getElementById('submitBtn');
+        
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        // Open modal
+        this.feedbackBtn.addEventListener('click', () => this.openModal());
+        
+        // Close modal
+        this.closeBtn.addEventListener('click', () => this.closeModal());
+        this.cancelBtn.addEventListener('click', () => this.closeModal());
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === this.modal) {
+                this.closeModal();
+            }
+        });
+        
+        // Handle form submission
+        this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        
+        // ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.modal.style.display === 'block') {
+                this.closeModal();
+            }
+        });
+    }
+    
+    openModal() {
+        this.modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    closeModal() {
+        this.modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        this.resetForm();
+    }
+    
+    resetForm() {
+        this.form.reset();
+        this.submitBtn.disabled = false;
+        this.submitBtn.textContent = 'Send Feedback';
+    }
+    
+    validateSecurityAnswer(answer) {
+        const validAnswers = [
+            'sonic', 'shadow', 'tails', 'knuckles', 'amy', 'dark sonic',
+            'eggman', 'robotnik', 'cream', 'rouge', 'silver', 'blaze',
+            'vector', 'espio', 'charmy', 'big', 'chaos', 'metal sonic',
+            'super sonic', 'knuckles', 'miles', 'sally', 'bunnie'
+        ];
+        
+        const cleanAnswer = answer.toLowerCase().trim();
+        return validAnswers.some(valid => cleanAnswer.includes(valid) || valid.includes(cleanAnswer));
+    }
+    
+    async handleSubmit(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(this.form);
+        const data = Object.fromEntries(formData.entries());
+        
+        // Validate security answer
+        if (!this.validateSecurityAnswer(data.securityAnswer)) {
+            alert('Security question failed! Please enter any Sonic character name.');
+            return;
+        }
+        
+        // Disable submit button
+        this.submitBtn.disabled = true;
+        this.submitBtn.textContent = 'Sending...';
+        
+        try {
+            // Prepare email data
+            const emailData = {
+                feedback_type: data.feedbackType,
+                character: data.currentCharacter,
+                level: data.currentLevel,
+                description: data.description,
+                security_answer: data.securityAnswer,
+                timestamp: new Date().toLocaleString(),
+                user_agent: navigator.userAgent
+            };
+            
+            // Send email using EmailJS
+            await emailjs.send(
+                'service_p2fplrx', // Replace with your EmailJS service ID
+                'template_pb19ka6', // Replace with your EmailJS template ID
+                emailData
+            );
+            
+            // Success message
+            alert('Thank you for your feedback! Your message has been sent successfully.');
+            this.closeModal();
+            
+        } catch (error) {
+            console.error('Error sending feedback:', error);
+            alert('Sorry, there was an error sending your feedback. Please try again later.');
+            
+            // Re-enable submit button
+            this.submitBtn.disabled = false;
+            this.submitBtn.textContent = 'Send Feedback';
+        }
+    }
+}
+
+// Initialize the game and feedback system
 new SonicGame();
+new FeedbackManager();
