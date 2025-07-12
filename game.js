@@ -91,7 +91,7 @@ class SonicGame {
                     // Smooth continuous loop using a single large curved platform
                     // This creates a proper loop where the player follows the curve naturally
                     { x: 1700, y: 575, width: 1000, height: 40, type: 'loop', 
-                      loopCenter: { x: 1950, y: 400 }, loopRadius: 175 }
+                      loopCenter: { x: 1950, y: 400 }, loopRadius: 175 },
                     
                     // Post-loop straight section
                     { x: 2240, y: 575, width: 400, height: 40 },
