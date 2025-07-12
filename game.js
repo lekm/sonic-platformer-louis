@@ -31,6 +31,8 @@ class SonicGame {
         
         this.audioContext = null;
         this.sounds = {};
+        this.musicEnabled = true;
+        this.sfxEnabled = true;
         this.initAudio();
         
         this.player = {
@@ -83,29 +85,13 @@ class SonicGame {
                     { x: 1000, y: 570, width: 200, height: 40 },
                     { x: 1200, y: 575, width: 300, height: 40 },
                     
-                    // Loop-de-loop approach
-                    { x: 1500, y: 575, width: 100, height: 40 },
+                    // Loop-de-loop approach - gentle ramp up
+                    { x: 1500, y: 575, width: 200, height: 40 },
                     
-                    // Loop-de-loop structure (circular path)
-                    { x: 1600, y: 570, width: 50, height: 20 },    // entry ramp
-                    { x: 1650, y: 560, width: 40, height: 20 },
-                    { x: 1690, y: 540, width: 30, height: 20 },
-                    { x: 1720, y: 510, width: 30, height: 20 },
-                    { x: 1750, y: 470, width: 30, height: 20 },
-                    { x: 1780, y: 420, width: 30, height: 20 },
-                    { x: 1810, y: 360, width: 30, height: 20 },
-                    { x: 1840, y: 300, width: 30, height: 20 },
-                    { x: 1870, y: 250, width: 30, height: 20 },    // top of loop
-                    { x: 1900, y: 200, width: 40, height: 20 },    // peak
-                    { x: 1940, y: 250, width: 30, height: 20 },    // start descent
-                    { x: 1970, y: 300, width: 30, height: 20 },
-                    { x: 2000, y: 360, width: 30, height: 20 },
-                    { x: 2030, y: 420, width: 30, height: 20 },
-                    { x: 2060, y: 470, width: 30, height: 20 },
-                    { x: 2090, y: 510, width: 30, height: 20 },
-                    { x: 2120, y: 540, width: 30, height: 20 },
-                    { x: 2150, y: 560, width: 40, height: 20 },
-                    { x: 2190, y: 570, width: 50, height: 20 },    // exit ramp
+                    // Smooth continuous loop using a single large curved platform
+                    // This creates a proper loop where the player follows the curve naturally
+                    { x: 1700, y: 575, width: 1000, height: 40, type: 'loop', 
+                      loopCenter: { x: 1950, y: 400 }, loopRadius: 175 }
                     
                     // Post-loop straight section
                     { x: 2240, y: 575, width: 400, height: 40 },
@@ -254,22 +240,7 @@ class SonicGame {
                     { x: 4100, y: 515, type: 'superpower', collected: false }  // Near finish
                 ],
                 enemies: [
-                    // Ground badniks along the main path - spaced to avoid breaking flow
-                    { x: 600, y: 520, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
-                    { x: 1350, y: 545, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
-                    { x: 2400, y: 545, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
-                    { x: 3800, y: 545, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
-                    
-                    // Flying badniks - positioned to threaten but not block the main path
-                    { x: 900, y: 400, width: 24, height: 24, direction: 1, speed: 0.8, type: 'flying', startY: 400, flyRange: 60 },
-                    { x: 2300, y: 450, width: 24, height: 24, direction: -1, speed: 0.8, type: 'flying', startY: 450, flyRange: 50 },
-                    { x: 3200, y: 350, width: 24, height: 24, direction: 1, speed: 0.8, type: 'flying', startY: 350, flyRange: 80 },
-                    { x: 4000, y: 450, width: 24, height: 24, direction: -1, speed: 0.8, type: 'flying', startY: 450, flyRange: 60 },
-                    
-                    // Cannon badniks - positioned to add challenge without stopping momentum
-                    { x: 1100, y: 545, width: 32, height: 32, direction: 1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 },
-                    { x: 3000, y: 440, width: 32, height: 32, direction: -1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 },
-                    { x: 4200, y: 545, width: 32, height: 32, direction: 1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 }
+                    // Level 1 is now pure speed - no enemies to break the flow!
                 ],
                 projectiles: [],
                 finish: { x: 4300, y: 475, width: 50, height: 100 },
@@ -491,8 +462,8 @@ class SonicGame {
         const notes = [440, 493, 523, 587, 659, 698, 784, 880];
         let noteIndex = 0;
         
-        setInterval(() => {
-            if (this.gameState === 'playing') {
+        this.musicInterval = setInterval(() => {
+            if (this.gameState === 'playing' && this.musicEnabled) {
                 this.playTone(notes[noteIndex % notes.length], 0.3);
                 noteIndex++;
             }
@@ -500,7 +471,7 @@ class SonicGame {
     }
     
     playTone(frequency, duration) {
-        if (!this.audioContext) return;
+        if (!this.audioContext || !this.sfxEnabled) return;
         
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
@@ -563,6 +534,21 @@ class SonicGame {
         
         window.addEventListener('keyup', (e) => {
             this.keys[e.key] = false;
+        });
+        
+        // Audio control buttons
+        document.getElementById('musicToggle').addEventListener('click', () => {
+            this.musicEnabled = !this.musicEnabled;
+            const btn = document.getElementById('musicToggle');
+            btn.textContent = this.musicEnabled ? '🎵 Music: ON' : '🎵 Music: OFF';
+            btn.classList.toggle('disabled', !this.musicEnabled);
+        });
+        
+        document.getElementById('sfxToggle').addEventListener('click', () => {
+            this.sfxEnabled = !this.sfxEnabled;
+            const btn = document.getElementById('sfxToggle');
+            btn.textContent = this.sfxEnabled ? '🔊 SFX: ON' : '🔊 SFX: OFF';
+            btn.classList.toggle('disabled', !this.sfxEnabled);
         });
     }
     
@@ -920,8 +906,12 @@ class SonicGame {
                 this.player.y < platform.y + platform.height &&
                 this.player.y + this.player.height > platform.y) {
                 
+                // Handle loop-de-loop platforms with curved collision
+                if (platform.type === 'loop') {
+                    this.handleLoopCollision(platform);
+                }
                 // Handle ceiling platforms (upside-down sections)
-                if (platform.type === 'ceiling' && this.player.velocityY < 0 && this.player.y > platform.y) {
+                else if (platform.type === 'ceiling' && this.player.velocityY < 0 && this.player.y > platform.y) {
                     // Only stick to ceiling if moving fast enough
                     if (this.player.speedBoost > 0.5 || Math.abs(this.player.velocityX) > 8) {
                         this.player.y = platform.y + platform.height;
@@ -930,7 +920,7 @@ class SonicGame {
                     }
                 }
                 // Handle normal platform collision
-                else if (!platform.type || platform.type !== 'ceiling') {
+                else if (!platform.type || (platform.type !== 'ceiling' && platform.type !== 'loop')) {
                     if (this.player.velocityY > 0 && this.player.y < platform.y) {
                         this.player.y = platform.y - this.player.height;
                         this.player.velocityY = 0;
@@ -1057,6 +1047,62 @@ class SonicGame {
                 }
             }
         });
+    }
+    
+    handleLoopCollision(platform) {
+        const centerX = platform.loopCenter.x;
+        const centerY = platform.loopCenter.y;
+        const radius = platform.loopRadius;
+        
+        // Calculate player center position
+        const playerCenterX = this.player.x + this.player.width / 2;
+        const playerCenterY = this.player.y + this.player.height / 2;
+        
+        // Calculate distance from loop center
+        const dx = playerCenterX - centerX;
+        const dy = playerCenterY - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Check if player is close enough to the loop path
+        const pathThickness = 30; // How thick the loop path is
+        if (distance >= radius - pathThickness && distance <= radius + pathThickness) {
+            // Calculate the angle around the loop
+            const angle = Math.atan2(dy, dx);
+            
+            // Position player on the loop path
+            const pathRadius = radius - this.player.height / 2;
+            const targetX = centerX + Math.cos(angle) * pathRadius - this.player.width / 2;
+            const targetY = centerY + Math.sin(angle) * pathRadius - this.player.height / 2;
+            
+            // Smoothly move player toward the loop path
+            this.player.x = targetX;
+            this.player.y = targetY;
+            
+            // Calculate velocity direction along the loop
+            const speed = Math.abs(this.player.velocityX) + Math.abs(this.player.velocityY);
+            const tangentAngle = angle + Math.PI / 2; // Perpendicular to radius
+            
+            // Maintain forward momentum around the loop
+            if (this.player.direction > 0) {
+                this.player.velocityX = Math.cos(tangentAngle) * Math.max(speed, 8);
+                this.player.velocityY = Math.sin(tangentAngle) * Math.max(speed, 8);
+            } else {
+                this.player.velocityX = -Math.cos(tangentAngle) * Math.max(speed, 8);
+                this.player.velocityY = -Math.sin(tangentAngle) * Math.max(speed, 8);
+            }
+            
+            this.player.onGround = true;
+            
+            // Add visual effect for loop traversal
+            if (Math.random() < 0.3) {
+                this.createParticle(
+                    this.player.x + Math.random() * this.player.width,
+                    this.player.y + Math.random() * this.player.height,
+                    '#FFD700',
+                    2
+                );
+            }
+        }
     }
     
     takeDamage() {
@@ -1280,6 +1326,12 @@ class SonicGame {
     
     renderPlatforms() {
         this.platforms.forEach(platform => {
+            // Special rendering for loop platforms
+            if (platform.type === 'loop') {
+                this.renderLoop(platform);
+                return;
+            }
+            
             let gradient, grassColor;
             
             // Different visuals for different platform types
@@ -1339,6 +1391,46 @@ class SonicGame {
                 }
             }
         });
+    }
+    
+    renderLoop(platform) {
+        const centerX = platform.loopCenter.x;
+        const centerY = platform.loopCenter.y;
+        const radius = platform.loopRadius;
+        
+        this.ctx.save();
+        
+        // Draw the outer loop track
+        this.ctx.strokeStyle = '#8B4513';
+        this.ctx.lineWidth = 25;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // Draw the inner track detail
+        this.ctx.strokeStyle = '#A0522D';
+        this.ctx.lineWidth = 15;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // Draw grass on the track
+        this.ctx.strokeStyle = '#228B22';
+        this.ctx.lineWidth = 8;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius - 5, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // Add some visual flair - dashed center line
+        this.ctx.setLineDash([10, 5]);
+        this.ctx.strokeStyle = '#FFD700';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+        
+        this.ctx.restore();
     }
     
     renderCollectibles() {

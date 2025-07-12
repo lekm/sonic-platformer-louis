@@ -143,6 +143,47 @@ body {
     100% { transform: scale(1); }
 }
 
+/* Audio Controls */
+.audio-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+}
+
+.audio-btn {
+    background: rgba(0, 0, 0, 0.7);
+    color: #FFD700;
+    border: 2px solid #FFD700;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    text-align: center;
+}
+
+.audio-btn:hover {
+    background: rgba(255, 215, 0, 0.2);
+    transform: scale(1.05);
+}
+
+.audio-btn:active {
+    transform: scale(0.95);
+}
+
+.audio-btn.disabled {
+    background: rgba(0, 0, 0, 0.9);
+    color: #888;
+    border-color: #666;
+}
+
 /* Feedback Button */
 .feedback-btn {
     position: fixed;
