@@ -518,13 +518,13 @@ class SonicGame {
             }
             
             if (this.gameState === 'characterSelect') {
-                if (e.key === 'ArrowLeft' || e.key === 'a') {
+                if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
                     this.selectedCharacter = (this.selectedCharacter - 1 + this.characters.length) % this.characters.length;
                     this.playTone(440, 0.1);
-                } else if (e.key === 'ArrowRight' || e.key === 'd') {
+                } else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
                     this.selectedCharacter = (this.selectedCharacter + 1) % this.characters.length;
                     this.playTone(440, 0.1);
-                } else if (e.key === 'Enter' || e.key === ' ') {
+                } else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Space') {
                     this.startGame();
                 }
             } else if ((this.gameState === 'gameOver' || this.gameState === 'gameComplete') && e.key === 'r') {
@@ -534,6 +534,13 @@ class SonicGame {
         
         window.addEventListener('keyup', (e) => {
             this.keys[e.key] = false;
+        });
+        
+        // Click to start from character selection
+        this.canvas.addEventListener('click', () => {
+            if (this.gameState === 'characterSelect') {
+                this.startGame();
+            }
         });
         
         // Audio control buttons
@@ -1258,10 +1265,19 @@ class SonicGame {
         });
         
         this.ctx.fillStyle = 'white';
-        this.ctx.font = '24px Arial';
+        this.ctx.font = '20px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Use Arrow Keys or A/D to select', this.canvas.width / 2, this.canvas.height - 80);
-        this.ctx.fillText('Press ENTER or SPACE to start', this.canvas.width / 2, this.canvas.height - 50);
+        this.ctx.fillText('Use Arrow Keys or A/D to select', this.canvas.width / 2, this.canvas.height - 100);
+        
+        // Make the start instruction more prominent and pulsing
+        const pulseAlpha = Math.sin(this.animationTime * 0.3) * 0.3 + 0.7;
+        this.ctx.fillStyle = `rgba(255, 215, 0, ${pulseAlpha})`;
+        this.ctx.font = 'bold 28px Arial';
+        this.ctx.fillText('>>> Press ENTER, SPACE, or CLICK to START <<<', this.canvas.width / 2, this.canvas.height - 60);
+        
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '16px Arial';
+        this.ctx.fillText('Try clicking the game if keyboard doesn\'t respond', this.canvas.width / 2, this.canvas.height - 20);
     }
     
     drawCharacterSprite(x, y, character, isSelected) {
