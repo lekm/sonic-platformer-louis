@@ -1661,12 +1661,7 @@ class FeedbackManager {
     }
     
     validateSecurityAnswer(answer) {
-        const validAnswers = [
-            'sonic', 'shadow', 'tails', 'knuckles', 'amy', 'dark sonic',
-            'eggman', 'robotnik', 'cream', 'rouge', 'silver', 'blaze',
-            'vector', 'espio', 'charmy', 'big', 'chaos', 'metal sonic',
-            'super sonic', 'knuckles', 'miles', 'sally', 'bunnie'
-        ];
+        const validAnswers = ['liam', 'jamie'];
         
         const cleanAnswer = answer.toLowerCase().trim();
         return validAnswers.some(valid => cleanAnswer.includes(valid) || valid.includes(cleanAnswer));
@@ -1681,7 +1676,7 @@ class FeedbackManager {
         
         // Validate security answer
         if (!this.validateSecurityAnswer(data.securityAnswer)) {
-            alert('Security question failed! Please enter any Sonic character name.');
+            alert('Security question failed! Please enter your favourite uncle\'s name.');
             return;
         }
         
