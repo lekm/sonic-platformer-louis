@@ -56,7 +56,11 @@ class SonicGame {
             doubleJumpUsed: false,
             teleportCooldown: 0,
             invulnerable: false,
-            invulnerableTime: 0
+            invulnerableTime: 0,
+            // Speed boost mechanics
+            speedBoost: 0,
+            speedBoostTime: 0,
+            maxSpeedBoost: 2.5
         };
         
         this.levels = this.initializeLevels();
@@ -71,173 +75,204 @@ class SonicGame {
             1: {
                 name: "Green Hill",
                 platforms: [
-                    { x: 0, y: 550, width: 400, height: 50 },
-                    { x: 500, y: 500, width: 200, height: 20 },
-                    { x: 800, y: 450, width: 200, height: 20 },
-                    { x: 1100, y: 400, width: 150, height: 20 },
-                    { x: 1350, y: 350, width: 200, height: 20 },
+                    // Starting platform - wide and flat
+                    { x: 0, y: 550, width: 800, height: 50 },
                     
-                    // Loop section starts here
-                    { x: 1650, y: 300, width: 100, height: 20 },
-                    { x: 1800, y: 250, width: 80, height: 20 },
-                    { x: 1920, y: 200, width: 80, height: 20 },
-                    { x: 2040, y: 150, width: 80, height: 20 },
-                    { x: 2160, y: 120, width: 80, height: 20 },
-                    { x: 2280, y: 100, width: 80, height: 20 },
-                    { x: 2400, y: 90, width: 100, height: 20 },
-                    { x: 2540, y: 100, width: 80, height: 20 },
-                    { x: 2660, y: 120, width: 80, height: 20 },
-                    { x: 2780, y: 150, width: 80, height: 20 },
-                    { x: 2900, y: 200, width: 80, height: 20 },
-                    { x: 3020, y: 250, width: 80, height: 20 },
-                    { x: 3140, y: 300, width: 100, height: 20 },
-                    // Loop section ends here
+                    // Speed boost section - gentle slope down
+                    { x: 800, y: 560, width: 200, height: 40 },
+                    { x: 1000, y: 570, width: 200, height: 40 },
+                    { x: 1200, y: 575, width: 300, height: 40 },
                     
-                    { x: 3300, y: 350, width: 200, height: 20 },
-                    { x: 3600, y: 400, width: 200, height: 20 },
-                    { x: 3900, y: 450, width: 300, height: 20 },
-                    { x: 4300, y: 550, width: 400, height: 50 }
+                    // Loop-de-loop approach
+                    { x: 1500, y: 575, width: 100, height: 40 },
+                    
+                    // Loop-de-loop structure (circular path)
+                    { x: 1600, y: 570, width: 50, height: 20 },    // entry ramp
+                    { x: 1650, y: 560, width: 40, height: 20 },
+                    { x: 1690, y: 540, width: 30, height: 20 },
+                    { x: 1720, y: 510, width: 30, height: 20 },
+                    { x: 1750, y: 470, width: 30, height: 20 },
+                    { x: 1780, y: 420, width: 30, height: 20 },
+                    { x: 1810, y: 360, width: 30, height: 20 },
+                    { x: 1840, y: 300, width: 30, height: 20 },
+                    { x: 1870, y: 250, width: 30, height: 20 },    // top of loop
+                    { x: 1900, y: 200, width: 40, height: 20 },    // peak
+                    { x: 1940, y: 250, width: 30, height: 20 },    // start descent
+                    { x: 1970, y: 300, width: 30, height: 20 },
+                    { x: 2000, y: 360, width: 30, height: 20 },
+                    { x: 2030, y: 420, width: 30, height: 20 },
+                    { x: 2060, y: 470, width: 30, height: 20 },
+                    { x: 2090, y: 510, width: 30, height: 20 },
+                    { x: 2120, y: 540, width: 30, height: 20 },
+                    { x: 2150, y: 560, width: 40, height: 20 },
+                    { x: 2190, y: 570, width: 50, height: 20 },    // exit ramp
+                    
+                    // Post-loop straight section
+                    { x: 2240, y: 575, width: 400, height: 40 },
+                    
+                    // Speed boost zone before upside-down section
+                    { x: 2640, y: 575, width: 160, height: 40, type: 'speedboost' },
+                    
+                    // Upside-down section (requires speed to stick)
+                    { x: 2800, y: 575, width: 50, height: 20 },    // ramp up
+                    { x: 2850, y: 560, width: 50, height: 20 },
+                    { x: 2900, y: 540, width: 50, height: 20 },
+                    { x: 2950, y: 510, width: 50, height: 20 },
+                    { x: 3000, y: 470, width: 50, height: 20 },
+                    { x: 3050, y: 420, width: 50, height: 20 },
+                    { x: 3100, y: 350, width: 60, height: 20 },    // top section
+                    { x: 3160, y: 280, width: 80, height: 20, type: 'ceiling' },  // upside-down bit
+                    { x: 3240, y: 280, width: 80, height: 20, type: 'ceiling' },
+                    { x: 3320, y: 280, width: 80, height: 20, type: 'ceiling' },
+                    { x: 3400, y: 350, width: 60, height: 20 },    // come back down
+                    { x: 3460, y: 420, width: 50, height: 20 },
+                    { x: 3510, y: 470, width: 50, height: 20 },
+                    { x: 3560, y: 510, width: 50, height: 20 },
+                    { x: 3610, y: 540, width: 50, height: 20 },
+                    { x: 3660, y: 560, width: 50, height: 20 },
+                    { x: 3710, y: 575, width: 50, height: 20 },    // back to ground
+                    
+                    // Final straight section to finish
+                    { x: 3760, y: 575, width: 600, height: 40 }
                 ],
                 collectibles: [
-                    // Ground level rings
+                    // Starting section rings - flowing along the ground
+                    { x: 200, y: 520, type: 'ring', collected: false },
+                    { x: 250, y: 520, type: 'ring', collected: false },
                     { x: 300, y: 520, type: 'ring', collected: false },
                     { x: 350, y: 520, type: 'ring', collected: false },
                     { x: 400, y: 520, type: 'ring', collected: false },
                     { x: 450, y: 520, type: 'ring', collected: false },
                     { x: 500, y: 520, type: 'ring', collected: false },
-                    { x: 550, y: 470, type: 'ring', collected: false },
-                    { x: 600, y: 470, type: 'ring', collected: false },
-                    { x: 650, y: 470, type: 'ring', collected: false },
-                    { x: 700, y: 470, type: 'ring', collected: false },
-                    { x: 750, y: 470, type: 'ring', collected: false },
-                    { x: 800, y: 470, type: 'ring', collected: false },
-                    { x: 850, y: 420, type: 'ring', collected: false },
-                    { x: 900, y: 420, type: 'ring', collected: false },
-                    { x: 950, y: 420, type: 'ring', collected: false },
-                    { x: 1000, y: 420, type: 'ring', collected: false },
-                    { x: 1050, y: 420, type: 'ring', collected: false },
-                    { x: 1100, y: 420, type: 'ring', collected: false },
-                    { x: 1150, y: 370, type: 'ring', collected: false },
-                    { x: 1200, y: 370, type: 'ring', collected: false },
-                    { x: 1250, y: 370, type: 'ring', collected: false },
-                    { x: 1300, y: 370, type: 'ring', collected: false },
-                    { x: 1350, y: 370, type: 'ring', collected: false },
-                    { x: 1400, y: 320, type: 'ring', collected: false },
-                    { x: 1450, y: 320, type: 'ring', collected: false },
-                    { x: 1500, y: 320, type: 'ring', collected: false },
-                    { x: 1550, y: 320, type: 'ring', collected: false },
+                    { x: 550, y: 520, type: 'ring', collected: false },
+                    { x: 600, y: 520, type: 'ring', collected: false },
+                    { x: 650, y: 520, type: 'ring', collected: false },
+                    { x: 700, y: 520, type: 'ring', collected: false },
+                    { x: 750, y: 520, type: 'ring', collected: false },
                     
-                    // Loop section rings
-                    { x: 1700, y: 270, type: 'ring', collected: false },
-                    { x: 1750, y: 270, type: 'ring', collected: false },
-                    { x: 1800, y: 270, type: 'ring', collected: false },
-                    { x: 1850, y: 220, type: 'ring', collected: false },
-                    { x: 1900, y: 220, type: 'ring', collected: false },
-                    { x: 1950, y: 220, type: 'ring', collected: false },
-                    { x: 1970, y: 170, type: 'ring', collected: false },
-                    { x: 2020, y: 170, type: 'ring', collected: false },
-                    { x: 2070, y: 170, type: 'ring', collected: false },
-                    { x: 2090, y: 120, type: 'ring', collected: false },
-                    { x: 2140, y: 120, type: 'ring', collected: false },
-                    { x: 2190, y: 120, type: 'ring', collected: false },
-                    { x: 2210, y: 90, type: 'ring', collected: false },
-                    { x: 2260, y: 90, type: 'ring', collected: false },
-                    { x: 2310, y: 90, type: 'ring', collected: false },
-                    { x: 2330, y: 70, type: 'ring', collected: false },
-                    { x: 2380, y: 70, type: 'ring', collected: false },
-                    { x: 2430, y: 70, type: 'ring', collected: false },
-                    { x: 2450, y: 60, type: 'ring', collected: false },
-                    { x: 2500, y: 60, type: 'ring', collected: false },
-                    { x: 2550, y: 60, type: 'ring', collected: false },
-                    { x: 2590, y: 70, type: 'ring', collected: false },
-                    { x: 2640, y: 70, type: 'ring', collected: false },
-                    { x: 2690, y: 70, type: 'ring', collected: false },
-                    { x: 2710, y: 90, type: 'ring', collected: false },
-                    { x: 2760, y: 90, type: 'ring', collected: false },
-                    { x: 2810, y: 90, type: 'ring', collected: false },
-                    { x: 2830, y: 120, type: 'ring', collected: false },
-                    { x: 2880, y: 120, type: 'ring', collected: false },
-                    { x: 2930, y: 120, type: 'ring', collected: false },
-                    { x: 2950, y: 170, type: 'ring', collected: false },
-                    { x: 3000, y: 170, type: 'ring', collected: false },
-                    { x: 3050, y: 170, type: 'ring', collected: false },
-                    { x: 3070, y: 220, type: 'ring', collected: false },
-                    { x: 3120, y: 220, type: 'ring', collected: false },
-                    { x: 3170, y: 220, type: 'ring', collected: false },
-                    { x: 3190, y: 270, type: 'ring', collected: false },
-                    { x: 3240, y: 270, type: 'ring', collected: false },
-                    { x: 3290, y: 270, type: 'ring', collected: false },
+                    // Speed boost approach rings
+                    { x: 850, y: 530, type: 'ring', collected: false },
+                    { x: 900, y: 530, type: 'ring', collected: false },
+                    { x: 950, y: 530, type: 'ring', collected: false },
+                    { x: 1050, y: 540, type: 'ring', collected: false },
+                    { x: 1100, y: 540, type: 'ring', collected: false },
+                    { x: 1150, y: 540, type: 'ring', collected: false },
+                    { x: 1250, y: 545, type: 'ring', collected: false },
+                    { x: 1300, y: 545, type: 'ring', collected: false },
+                    { x: 1350, y: 545, type: 'ring', collected: false },
+                    { x: 1400, y: 545, type: 'ring', collected: false },
+                    { x: 1450, y: 545, type: 'ring', collected: false },
                     
-                    // End section rings
-                    { x: 3350, y: 320, type: 'ring', collected: false },
-                    { x: 3400, y: 320, type: 'ring', collected: false },
-                    { x: 3450, y: 320, type: 'ring', collected: false },
-                    { x: 3500, y: 320, type: 'ring', collected: false },
-                    { x: 3550, y: 320, type: 'ring', collected: false },
-                    { x: 3600, y: 320, type: 'ring', collected: false },
-                    { x: 3650, y: 370, type: 'ring', collected: false },
-                    { x: 3700, y: 370, type: 'ring', collected: false },
-                    { x: 3750, y: 370, type: 'ring', collected: false },
-                    { x: 3800, y: 370, type: 'ring', collected: false },
-                    { x: 3850, y: 370, type: 'ring', collected: false },
-                    { x: 3900, y: 370, type: 'ring', collected: false },
-                    { x: 3950, y: 420, type: 'ring', collected: false },
-                    { x: 4000, y: 420, type: 'ring', collected: false },
-                    { x: 4050, y: 420, type: 'ring', collected: false },
-                    { x: 4100, y: 420, type: 'ring', collected: false },
-                    { x: 4150, y: 420, type: 'ring', collected: false },
-                    { x: 4200, y: 420, type: 'ring', collected: false },
+                    // Loop-de-loop entry rings
+                    { x: 1550, y: 545, type: 'ring', collected: false },
+                    { x: 1620, y: 540, type: 'ring', collected: false },
+                    { x: 1670, y: 530, type: 'ring', collected: false },
+                    { x: 1710, y: 510, type: 'ring', collected: false },
+                    { x: 1740, y: 480, type: 'ring', collected: false },
+                    { x: 1770, y: 440, type: 'ring', collected: false },
+                    { x: 1800, y: 390, type: 'ring', collected: false },
+                    { x: 1830, y: 330, type: 'ring', collected: false },
+                    { x: 1860, y: 280, type: 'ring', collected: false },
+                    { x: 1890, y: 230, type: 'ring', collected: false },
                     
-                    // Vertical ring chains for flying characters
-                    { x: 600, y: 400, type: 'ring', collected: false },
-                    { x: 600, y: 370, type: 'ring', collected: false },
-                    { x: 600, y: 340, type: 'ring', collected: false },
-                    { x: 600, y: 310, type: 'ring', collected: false },
-                    { x: 1200, y: 300, type: 'ring', collected: false },
-                    { x: 1200, y: 270, type: 'ring', collected: false },
-                    { x: 1200, y: 240, type: 'ring', collected: false },
-                    { x: 1200, y: 210, type: 'ring', collected: false },
-                    { x: 3000, y: 100, type: 'ring', collected: false },
-                    { x: 3000, y: 70, type: 'ring', collected: false },
-                    { x: 3000, y: 40, type: 'ring', collected: false },
-                    { x: 3000, y: 10, type: 'ring', collected: false },
-                    { x: 3700, y: 300, type: 'ring', collected: false },
-                    { x: 3700, y: 270, type: 'ring', collected: false },
-                    { x: 3700, y: 240, type: 'ring', collected: false },
-                    { x: 3700, y: 210, type: 'ring', collected: false },
+                    // Top of loop and descent
+                    { x: 1920, y: 180, type: 'ring', collected: false },
+                    { x: 1950, y: 230, type: 'ring', collected: false },
+                    { x: 1980, y: 280, type: 'ring', collected: false },
+                    { x: 2010, y: 330, type: 'ring', collected: false },
+                    { x: 2040, y: 390, type: 'ring', collected: false },
+                    { x: 2070, y: 440, type: 'ring', collected: false },
+                    { x: 2100, y: 480, type: 'ring', collected: false },
+                    { x: 2130, y: 510, type: 'ring', collected: false },
+                    { x: 2170, y: 530, type: 'ring', collected: false },
+                    { x: 2210, y: 540, type: 'ring', collected: false },
                     
-                    // Hidden rings in hard to reach places
-                    { x: 150, y: 200, type: 'ring', collected: false },
-                    { x: 150, y: 170, type: 'ring', collected: false },
-                    { x: 150, y: 140, type: 'ring', collected: false },
-                    { x: 4500, y: 200, type: 'ring', collected: false },
-                    { x: 4500, y: 170, type: 'ring', collected: false },
-                    { x: 4500, y: 140, type: 'ring', collected: false },
+                    // Post-loop straight section
+                    { x: 2300, y: 545, type: 'ring', collected: false },
+                    { x: 2350, y: 545, type: 'ring', collected: false },
+                    { x: 2400, y: 545, type: 'ring', collected: false },
+                    { x: 2450, y: 545, type: 'ring', collected: false },
+                    { x: 2500, y: 545, type: 'ring', collected: false },
+                    { x: 2550, y: 545, type: 'ring', collected: false },
+                    { x: 2600, y: 545, type: 'ring', collected: false },
                     
-                    // Powerups
-                    { x: 1750, y: 220, type: 'superpower', collected: false },
-                    { x: 2450, y: 60, type: 'superpower', collected: false },
-                    { x: 3700, y: 180, type: 'superpower', collected: false }
+                    // Speed boost zone rings (special visual effect)
+                    { x: 2670, y: 545, type: 'ring', collected: false },
+                    { x: 2700, y: 545, type: 'ring', collected: false },
+                    { x: 2730, y: 545, type: 'ring', collected: false },
+                    { x: 2760, y: 545, type: 'ring', collected: false },
+                    
+                    // Upside-down section approach
+                    { x: 2820, y: 545, type: 'ring', collected: false },
+                    { x: 2870, y: 530, type: 'ring', collected: false },
+                    { x: 2920, y: 510, type: 'ring', collected: false },
+                    { x: 2970, y: 480, type: 'ring', collected: false },
+                    { x: 3020, y: 440, type: 'ring', collected: false },
+                    { x: 3070, y: 390, type: 'ring', collected: false },
+                    { x: 3120, y: 320, type: 'ring', collected: false },
+                    
+                    // Upside-down ceiling rings (reward for maintaining speed)
+                    { x: 3180, y: 250, type: 'ring', collected: false },
+                    { x: 3220, y: 250, type: 'ring', collected: false },
+                    { x: 3260, y: 250, type: 'ring', collected: false },
+                    { x: 3300, y: 250, type: 'ring', collected: false },
+                    { x: 3340, y: 250, type: 'ring', collected: false },
+                    
+                    // Coming back down
+                    { x: 3420, y: 320, type: 'ring', collected: false },
+                    { x: 3480, y: 390, type: 'ring', collected: false },
+                    { x: 3530, y: 440, type: 'ring', collected: false },
+                    { x: 3580, y: 480, type: 'ring', collected: false },
+                    { x: 3630, y: 510, type: 'ring', collected: false },
+                    { x: 3680, y: 530, type: 'ring', collected: false },
+                    { x: 3730, y: 545, type: 'ring', collected: false },
+                    
+                    // Final stretch rings
+                    { x: 3800, y: 545, type: 'ring', collected: false },
+                    { x: 3850, y: 545, type: 'ring', collected: false },
+                    { x: 3900, y: 545, type: 'ring', collected: false },
+                    { x: 3950, y: 545, type: 'ring', collected: false },
+                    { x: 4000, y: 545, type: 'ring', collected: false },
+                    { x: 4050, y: 545, type: 'ring', collected: false },
+                    { x: 4100, y: 545, type: 'ring', collected: false },
+                    { x: 4150, y: 545, type: 'ring', collected: false },
+                    { x: 4200, y: 545, type: 'ring', collected: false },
+                    { x: 4250, y: 545, type: 'ring', collected: false },
+                    
+                    // Bonus rings for exploration (above the main path)
+                    { x: 400, y: 400, type: 'ring', collected: false },
+                    { x: 450, y: 400, type: 'ring', collected: false },
+                    { x: 500, y: 400, type: 'ring', collected: false },
+                    { x: 1920, y: 150, type: 'ring', collected: false }, // Top of loop bonus
+                    { x: 3280, y: 200, type: 'ring', collected: false }, // Above ceiling section
+                    { x: 4000, y: 400, type: 'ring', collected: false },
+                    { x: 4050, y: 400, type: 'ring', collected: false },
+                    
+                    // Powerups strategically placed
+                    { x: 1200, y: 515, type: 'superpower', collected: false }, // Before loop
+                    { x: 2700, y: 515, type: 'superpower', collected: false }, // In speed boost zone
+                    { x: 4100, y: 515, type: 'superpower', collected: false }  // Near finish
                 ],
                 enemies: [
-                    { x: 600, y: 470, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
-                    { x: 1200, y: 370, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
-                    { x: 2100, y: 120, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
-                    { x: 2700, y: 90, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
-                    { x: 3400, y: 320, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
-                    { x: 3700, y: 370, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
-                    // Flying badniks
-                    { x: 800, y: 300, width: 24, height: 24, direction: 1, speed: 0.8, type: 'flying', startY: 300, flyRange: 80 },
-                    { x: 1500, y: 200, width: 24, height: 24, direction: -1, speed: 0.8, type: 'flying', startY: 200, flyRange: 60 },
-                    { x: 2800, y: 50, width: 24, height: 24, direction: 1, speed: 0.8, type: 'flying', startY: 50, flyRange: 100 },
-                    { x: 3500, y: 250, width: 24, height: 24, direction: -1, speed: 0.8, type: 'flying', startY: 250, flyRange: 70 },
-                    // Cannon badniks (stationary, shoot projectiles)
-                    { x: 1000, y: 470, width: 32, height: 32, direction: 1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 },
-                    { x: 2500, y: 60, width: 32, height: 32, direction: -1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 },
-                    { x: 4000, y: 420, width: 32, height: 32, direction: 1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 }
+                    // Ground badniks along the main path - spaced to avoid breaking flow
+                    { x: 600, y: 520, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
+                    { x: 1350, y: 545, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
+                    { x: 2400, y: 545, width: 24, height: 24, direction: 1, speed: 1, type: 'ground' },
+                    { x: 3800, y: 545, width: 24, height: 24, direction: -1, speed: 1, type: 'ground' },
+                    
+                    // Flying badniks - positioned to threaten but not block the main path
+                    { x: 900, y: 400, width: 24, height: 24, direction: 1, speed: 0.8, type: 'flying', startY: 400, flyRange: 60 },
+                    { x: 2300, y: 450, width: 24, height: 24, direction: -1, speed: 0.8, type: 'flying', startY: 450, flyRange: 50 },
+                    { x: 3200, y: 350, width: 24, height: 24, direction: 1, speed: 0.8, type: 'flying', startY: 350, flyRange: 80 },
+                    { x: 4000, y: 450, width: 24, height: 24, direction: -1, speed: 0.8, type: 'flying', startY: 450, flyRange: 60 },
+                    
+                    // Cannon badniks - positioned to add challenge without stopping momentum
+                    { x: 1100, y: 545, width: 32, height: 32, direction: 1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 },
+                    { x: 3000, y: 440, width: 32, height: 32, direction: -1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 },
+                    { x: 4200, y: 545, width: 32, height: 32, direction: 1, speed: 0, type: 'cannon', lastShot: 0, shotCooldown: 180 }
                 ],
                 projectiles: [],
-                finish: { x: 4600, y: 450, width: 50, height: 100 },
+                finish: { x: 4300, y: 475, width: 50, height: 100 },
                 startX: 100,
                 startY: 450
             },
@@ -586,7 +621,21 @@ class SonicGame {
     
     updatePlayer() {
         const char = this.characters[this.player.character];
-        const speed = this.superSonic ? this.player.speed * 1.5 : this.player.speed;
+        
+        // Handle speed boost decay
+        if (this.player.speedBoost > 0) {
+            this.player.speedBoostTime--;
+            if (this.player.speedBoostTime <= 0) {
+                this.player.speedBoost = Math.max(0, this.player.speedBoost - 0.05);
+            }
+        }
+        
+        // Calculate effective speed with boosts
+        let baseSpeed = this.player.speed;
+        if (this.superSonic) baseSpeed *= 1.5;
+        if (this.player.speedBoost > 0) baseSpeed *= (1 + this.player.speedBoost);
+        
+        const speed = baseSpeed;
         const jumpPower = this.superSonic ? this.player.jumpPower * 1.2 : this.player.jumpPower;
         
         // Handle ability cooldowns
@@ -871,10 +920,39 @@ class SonicGame {
                 this.player.y < platform.y + platform.height &&
                 this.player.y + this.player.height > platform.y) {
                 
-                if (this.player.velocityY > 0 && this.player.y < platform.y) {
-                    this.player.y = platform.y - this.player.height;
-                    this.player.velocityY = 0;
-                    this.player.onGround = true;
+                // Handle ceiling platforms (upside-down sections)
+                if (platform.type === 'ceiling' && this.player.velocityY < 0 && this.player.y > platform.y) {
+                    // Only stick to ceiling if moving fast enough
+                    if (this.player.speedBoost > 0.5 || Math.abs(this.player.velocityX) > 8) {
+                        this.player.y = platform.y + platform.height;
+                        this.player.velocityY = 0;
+                        this.player.onGround = true;
+                    }
+                }
+                // Handle normal platform collision
+                else if (!platform.type || platform.type !== 'ceiling') {
+                    if (this.player.velocityY > 0 && this.player.y < platform.y) {
+                        this.player.y = platform.y - this.player.height;
+                        this.player.velocityY = 0;
+                        this.player.onGround = true;
+                        
+                        // Apply speed boost if this is a speed boost platform
+                        if (platform.type === 'speedboost') {
+                            this.player.speedBoost = Math.min(this.player.maxSpeedBoost, this.player.speedBoost + 1.5);
+                            this.player.speedBoostTime = 300; // 5 seconds at 60fps
+                            
+                            // Visual effect
+                            for (let i = 0; i < 15; i++) {
+                                this.createParticle(
+                                    this.player.x + Math.random() * this.player.width,
+                                    this.player.y + this.player.height,
+                                    '#00FF00',
+                                    4 + Math.random() * 3
+                                );
+                            }
+                            this.playTone(1200, 0.2);
+                        }
+                    }
                 }
             }
         });
@@ -1202,15 +1280,64 @@ class SonicGame {
     
     renderPlatforms() {
         this.platforms.forEach(platform => {
-            const gradient = this.ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
-            gradient.addColorStop(0, '#8B4513');
-            gradient.addColorStop(0.5, '#A0522D');
-            gradient.addColorStop(1, '#654321');
+            let gradient, grassColor;
+            
+            // Different visuals for different platform types
+            if (platform.type === 'speedboost') {
+                // Speed boost platforms - green/yellow gradient with energy effect
+                gradient = this.ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
+                gradient.addColorStop(0, '#00FF00');
+                gradient.addColorStop(0.5, '#32CD32');
+                gradient.addColorStop(1, '#228B22');
+                grassColor = '#ADFF2F';
+                
+                // Add pulsing effect
+                const pulse = Math.sin(this.animationTime * 0.1) * 0.3 + 0.7;
+                this.ctx.globalAlpha = pulse;
+            } else if (platform.type === 'ceiling') {
+                // Ceiling platforms - darker, metallic look
+                gradient = this.ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
+                gradient.addColorStop(0, '#4A4A4A');
+                gradient.addColorStop(0.5, '#696969');
+                gradient.addColorStop(1, '#2F2F2F');
+                grassColor = '#556B2F';
+            } else {
+                // Normal platforms
+                gradient = this.ctx.createLinearGradient(0, platform.y, 0, platform.y + platform.height);
+                gradient.addColorStop(0, '#8B4513');
+                gradient.addColorStop(0.5, '#A0522D');
+                gradient.addColorStop(1, '#654321');
+                grassColor = '#228B22';
+            }
+            
             this.ctx.fillStyle = gradient;
             this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
             
-            this.ctx.fillStyle = '#228B22';
-            this.ctx.fillRect(platform.x, platform.y - 8, platform.width, 8);
+            // Grass/surface layer
+            this.ctx.fillStyle = grassColor;
+            if (platform.type === 'ceiling') {
+                this.ctx.fillRect(platform.x, platform.y + platform.height, platform.width, 8);
+            } else {
+                this.ctx.fillRect(platform.x, platform.y - 8, platform.width, 8);
+            }
+            
+            // Reset alpha for speed boost platforms
+            if (platform.type === 'speedboost') {
+                this.ctx.globalAlpha = 1;
+                
+                // Add arrow indicators for speed boost direction
+                this.ctx.fillStyle = '#FFFF00';
+                for (let i = 0; i < platform.width; i += 40) {
+                    const arrowX = platform.x + i + 20;
+                    const arrowY = platform.y - 4;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(arrowX, arrowY);
+                    this.ctx.lineTo(arrowX + 8, arrowY - 4);
+                    this.ctx.lineTo(arrowX + 8, arrowY + 4);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                }
+            }
         });
     }
     
@@ -1481,6 +1608,30 @@ class SonicGame {
             gradient.addColorStop(1, `${superColor}33`);
             this.ctx.fillStyle = gradient;
             this.ctx.fillRect(-glowSize, -glowSize, 32 + glowSize * 2, 32 + glowSize * 2);
+        }
+        
+        // Speed boost effect
+        if (this.player.speedBoost > 0) {
+            const boostIntensity = this.player.speedBoost / this.player.maxSpeedBoost;
+            const boostSize = Math.sin(this.animationTime * 0.8) * 2 + 3;
+            const gradient = this.ctx.createRadialGradient(16, 16, 0, 16, 16, 20);
+            gradient.addColorStop(0, `#00FF00${Math.floor(boostIntensity * 150).toString(16).padStart(2, '0')}`);
+            gradient.addColorStop(0.5, `#32CD32${Math.floor(boostIntensity * 100).toString(16).padStart(2, '0')}`);
+            gradient.addColorStop(1, `#00FF0033`);
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(-boostSize, -boostSize, 32 + boostSize * 2, 32 + boostSize * 2);
+            
+            // Speed lines behind the player
+            this.ctx.strokeStyle = '#00FF00';
+            this.ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                const lineX = -10 - i * 8;
+                const lineY = 8 + Math.sin(this.animationTime * 0.3 + i) * 4;
+                this.ctx.beginPath();
+                this.ctx.moveTo(lineX, lineY);
+                this.ctx.lineTo(lineX - 15, lineY);
+                this.ctx.stroke();
+            }
         }
         
         // Main character colors
